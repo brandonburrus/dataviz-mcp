@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Visualization</title>
+    <style>
+      :root {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        color: #1f2933;
+      }
+      body {
+        margin: 0;
+      }
+      #root {
+        width: 100%;
+        min-height: 420px;
+      }
+      #root svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .viz-title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .viz-x-label,
+      .viz-y-label {
+        font-size: 12px;
+        fill: #52606d;
+      }
+      .viz-tooltip {
+        background: rgba(31, 41, 51, 0.92);
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        line-height: 1.4;
+        white-space: nowrap;
+        z-index: 10;
+      }
+      .viz-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        padding: 8px 12px 0;
+      }
+      .viz-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        background: none;
+        padding: 2px 4px;
+        font: inherit;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .viz-legend-swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+      .viz-legend-item-hidden {
+        opacity: 0.4;
+      }
+      .viz-legend-item-hidden .viz-legend-label {
+        text-decoration: line-through;
+      }
+      .viz-message {
+        padding: 24px;
+        color: #52606d;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <p class="viz-message">Waiting for visualization data&hellip;</p>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -18,4 +18,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec biome ci .
       - run: pnpm typecheck
+      # The app build must precede tests: the server resource test reads dist/app/index.html
+      - run: pnpm build:app
       - run: pnpm test
+      - run: pnpm build:server
