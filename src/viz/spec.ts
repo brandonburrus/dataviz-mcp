@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const vizTypeSchema = z.enum(['bar', 'line', 'scatter', 'pie', 'heatmap'])
+export const vizTypeSchema = z.enum(['bar', 'stacked-bar', 'line', 'scatter', 'pie', 'heatmap'])
 
 const dataValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
 
@@ -8,15 +8,22 @@ export const encodingsSchema = z.object({
   x: z
     .string()
     .optional()
-    .describe('Field for the x axis. bar/heatmap: category; line/scatter: number or ISO date'),
+    .describe(
+      'Field for the x axis. bar/stacked-bar/heatmap: category; line/scatter: number or ISO date',
+    ),
   y: z
     .string()
     .optional()
-    .describe('Field for the y axis. bar/line/scatter: numeric value; heatmap: category'),
+    .describe(
+      'Field for the y axis. bar/stacked-bar/line/scatter: numeric value; heatmap: category',
+    ),
   series: z
     .string()
     .optional()
-    .describe('Field that splits bar/line/scatter data into colored, legend-toggleable series'),
+    .describe(
+      'Field that splits the data into colored, legend-toggleable series. Optional for ' +
+        'bar/line/scatter; required for stacked-bar (it names the segments stacked in each bar)',
+    ),
   category: z.string().optional().describe('Field naming each pie slice'),
   value: z.string().optional().describe('Numeric field sizing each pie slice or heatmap cell'),
 })
@@ -41,7 +48,10 @@ export const vizSpecSchema = z.object({
   xLabel: z.string().optional().describe('X axis label'),
   yLabel: z.string().optional().describe('Y axis label'),
   colorScheme: colorSchemeSchema
-    .describe('tableau10/category10/dark2 for bar, line, scatter, pie; viridis/plasma for heatmap')
+    .describe(
+      'tableau10/category10/dark2 for bar, stacked-bar, line, scatter, pie; ' +
+        'viridis/plasma for heatmap',
+    )
     .optional(),
 })
 
@@ -62,6 +72,7 @@ export interface ChannelRules {
 
 export const CHANNEL_RULES: Record<VizType, ChannelRules> = {
   bar: { required: ['x', 'y'], optional: ['series'], numeric: ['y'] },
+  'stacked-bar': { required: ['x', 'y', 'series'], optional: [], numeric: ['y'] },
   line: { required: ['x', 'y'], optional: ['series'], numeric: ['y'] },
   scatter: { required: ['x', 'y'], optional: ['series'], numeric: ['y'] },
   pie: { required: ['category', 'value'], optional: [], numeric: ['value'] },

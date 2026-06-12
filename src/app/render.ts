@@ -4,12 +4,14 @@ import { renderHeatmap } from './renderers/heatmap.js'
 import { renderLineChart } from './renderers/line.js'
 import { renderPieChart } from './renderers/pie.js'
 import { renderScatterChart } from './renderers/scatter.js'
+import { renderStackedBarChart } from './renderers/stacked-bar.js'
 import type { Dimensions } from './shared/measure.js'
 
 export type Renderer = (container: HTMLElement, spec: VizSpec, dims?: Dimensions) => void
 
 const RENDERERS: Record<VizType, Renderer> = {
   bar: renderBarChart,
+  'stacked-bar': renderStackedBarChart,
   line: renderLineChart,
   scatter: renderScatterChart,
   pie: renderPieChart,

@@ -21,8 +21,11 @@ it receives via the ext-apps `toolresult` event.
 - `renderers/`: one file per viz type. The contract is a pure function
   `(container, spec, dims?) => void`; dimensions are injectable so tests pass
   explicit sizes. Interactivity: tooltips everywhere; legend series toggling on
-  bar/line/scatter/pie; zoom/pan on line (x) and scatter (x+y) with clip paths;
-  gradient legend on heatmap.
+  bar/stacked-bar/line/scatter/pie; zoom/pan on line (x) and scatter (x+y) with
+  clip paths; gradient legend on heatmap. stacked-bar pivots records to one row
+  per category (summing repeated series) and uses `d3.stack`, rescaling y to the
+  tallest visible stack on toggle; its y-axis redraw is untransitioned because a
+  transitioned axis tweens tick transforms, which happy-dom cannot interpolate.
 - `shared/`: chart frame (margin convention + title/labels), tooltip div,
   HTML legend with hidden-set toggling, color scale factories, x-scale builder
   (time vs linear), d3.zoom wiring.

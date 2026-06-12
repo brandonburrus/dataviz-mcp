@@ -75,14 +75,16 @@ export function validateSpec(spec: VizSpec): void {
     }
   }
 
-  if (spec.type === 'pie') {
-    const field = spec.encodings.value as string
+  if (spec.type === 'pie' || spec.type === 'stacked-bar') {
+    // Negative values make pie slices meaningless and make stacked segments
+    // diverge across the baseline; require non-negative for both.
+    const channel = spec.type === 'pie' ? 'value' : 'y'
+    const field = spec.encodings[channel] as string
+    const noun = spec.type === 'pie' ? 'Pie slice values' : 'Stacked bar values'
     for (const [index, record] of records.entries()) {
       const value = record[field] as number
       if (value < 0) {
-        throw new UserError(
-          `Pie slice values ('${field}') must be non-negative; row ${index} has ${value}`,
-        )
+        throw new UserError(`${noun} ('${field}') must be non-negative; row ${index} has ${value}`)
       }
     }
   }

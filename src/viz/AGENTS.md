@@ -10,7 +10,8 @@ app, so most of it must stay environment-neutral.
 ## How it works
 
 - `spec.ts`: `vizSpecSchema` (zod) defines the input in columnar form: `type`
-  (bar | line | scatter | pie | heatmap), `columns` (field names, declared once),
+  (bar | stacked-bar | line | scatter | pie | heatmap), `columns` (field names,
+  declared once),
   `rows` (1 to 10k positional value arrays, one value per column), `encodings`
   (column-name-to-channel map), optional title/labels/colorScheme. Also exports
   `CHANNEL_RULES`, the per-type required/optional/numeric channel table that
@@ -24,7 +25,8 @@ app, so most of it must stay environment-neutral.
   type, channels the type does not use, unique column names, every row length
   matching the columns, encodings referencing real columns, numeric channels
   numeric in every row (with row index in the error), line/scatter x all-numeric
-  or all-ISO-date, non-negative pie values, scheme-type compatibility. It runs
+  or all-ISO-date, non-negative pie and stacked-bar values, scheme-type
+  compatibility. It runs
   the structural checks on `columns`/`rows` directly, then `toRecords` for the
   value checks. Throws fastmcp `UserError` with corrective messages naming the
   offending channel/row and listing the columns, so the calling LLM can fix its
@@ -36,10 +38,13 @@ app, so most of it must stay environment-neutral.
 
 ## Gotchas
 
-- Channel semantics differ by type: bar x is categorical; line/scatter x must be
-  all-numeric or all-ISO-date (mixed is rejected); heatmap x/y are categorical
-  with numeric value; pie uses category+value, not x/y.
+- Channel semantics differ by type: bar/stacked-bar x is categorical; line/scatter
+  x must be all-numeric or all-ISO-date (mixed is rejected); heatmap x/y are
+  categorical with numeric value; pie uses category+value, not x/y.
+- stacked-bar requires series (it names the segments stacked in each bar); for
+  bar/line/scatter series is optional. stacked-bar values must be non-negative
+  (like pie) so segments do not diverge across the baseline.
 - Sequential schemes (viridis, plasma) are heatmap-only; categorical schemes
-  (tableau10, category10, dark2) are for the other four types.
+  (tableau10, category10, dark2) are for the other five types.
 - The tool is exported as a plain object (not registered inline) because FastMCP
   has no public tools getter; tests call `execute` directly with a stub context.

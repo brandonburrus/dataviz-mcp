@@ -22,6 +22,7 @@ describe('validateSpec', () => {
     const specs: VizSpec[] = [
       barSpec(),
       barSpec({ encodings: { x: 'month', y: 'sales', series: 'region' } }),
+      barSpec({ type: 'stacked-bar', encodings: { x: 'month', y: 'sales', series: 'region' } }),
       {
         type: 'line',
         columns: ['day', 'temp'],
@@ -58,6 +59,7 @@ describe('validateSpec', () => {
 
   it.each([
     ['bar', { series: 'region' }, 'x, y'],
+    ['stacked-bar', { x: 'month', y: 'sales' }, 'x, y, series'],
     ['line', { x: 'month' }, 'x, y'],
     ['scatter', { y: 'sales' }, 'x, y'],
     ['pie', { category: 'month' }, 'category, value'],
@@ -143,6 +145,19 @@ describe('validateSpec', () => {
       encodings: { category: 'browser', value: 'share' },
     }
     expect(() => validateSpec(spec)).toThrow('row 1 has -3')
+  })
+
+  it('rejects negative stacked bar values', () => {
+    const spec = barSpec({
+      type: 'stacked-bar',
+      rows: [
+        ['Jan', 100, 'EU'],
+        ['Feb', -5, 'US'],
+      ],
+      encodings: { x: 'month', y: 'sales', series: 'region' },
+    })
+    expect(() => validateSpec(spec)).toThrow('Stacked bar values')
+    expect(() => validateSpec(spec)).toThrow('row 1 has -5')
   })
 
   it('rejects sequential schemes for categorical types', () => {

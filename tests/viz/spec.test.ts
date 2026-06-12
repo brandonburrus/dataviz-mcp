@@ -16,6 +16,12 @@ describe('vizSpecSchema', () => {
     const specs = [
       validBarSpec,
       {
+        type: 'stacked-bar',
+        columns: ['month', 'sales', 'region'],
+        rows: [['Jan', 100, 'EU']],
+        encodings: { x: 'month', y: 'sales', series: 'region' },
+      },
+      {
         type: 'line',
         columns: ['day', 'temp'],
         rows: [[1, 20]],
