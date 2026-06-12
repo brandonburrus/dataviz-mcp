@@ -4,8 +4,11 @@ import { renderVisualization } from './render.js'
 
 const RESIZE_DEBOUNCE_MS = 100
 
+/** Package version inlined at build time by Vite from package.json (see vite.config.ts). */
+declare const __PKG_VERSION__: `${number}.${number}.${number}`
+
 const root = document.getElementById('root') as HTMLElement
-const app = new App({ name: 'dataviz-mcp', version: '0.3.0' })
+const app = new App({ name: 'dataviz-mcp', version: __PKG_VERSION__ })
 
 let currentSpec: VizSpec | undefined
 

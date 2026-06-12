@@ -22,6 +22,13 @@ jobs:
       # Node 22 bundles npm < 11.5.1; trusted publishing needs >= 11.5.1.
       - run: npm install -g npm@latest
       - run: pnpm install --frozen-lockfile
+      # The release tag is the source of truth for the version. Strip a leading
+      # "v" and write it into package.json (no git commit/tag); the prepack build
+      # then inlines it into both bundles. --allow-same-version keeps re-runs safe.
+      - name: Set version from release tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: npm version "${TAG#v}" --no-git-tag-version --allow-same-version
       # No NODE_AUTH_TOKEN and no --provenance: with a configured trusted publisher
       # npm performs the OIDC exchange and attaches provenance automatically. The
       # package's prepublishOnly (typecheck + test) and prepack (build) hooks gate

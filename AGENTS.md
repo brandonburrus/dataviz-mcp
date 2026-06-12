@@ -23,12 +23,21 @@ release, authenticating to npm via OIDC trusted publishing (no token; provenance
 is automatic). It upgrades npm to `@latest` first because trusted publishing
 needs npm `>= 11.5.1`, which Node 22's bundled npm predates.
 
-- **Bump the version before cutting the release**, in all three kept-in-sync
-  places (`package.json`, `src/server.ts`, `src/app/main.ts`), past the last
-  published version. The workflow publishes whatever `package.json` says; a tag
-  whose version is already on npm fails with "cannot publish over the previously
-  published versions". Re-running the failed run does not help: a `release`-event
-  workflow checks out the tag, so a new version needs a new tag/release.
+- **The release tag is the single source of truth for the version.** To release,
+  create a GitHub release with a `vX.Y.Z` (or `X.Y.Z`) tag; the workflow strips a
+  leading `v` and writes it into `package.json` (`npm version --no-git-tag-version`)
+  before building, so you never hand-edit a version. The committed `package.json`
+  version is only the working-tree default for local builds.
+- **Version flows tag -> package.json -> bundles.** `tsup.config.ts` and
+  `vite.config.ts` read `package.json` at build time and inline its version as the
+  compile-time constant `__PKG_VERSION__`, which `src/server.ts` (FastMCP version)
+  and `src/app/main.ts` (App version) use. Do not reintroduce hand-synced version
+  literals. FastMCP types `version` as `` `${number}.${number}.${number}` ``, so
+  the `declare const __PKG_VERSION__` uses that template type, not `string`.
+- The tag must exceed the last published version; npm rejects republishing an
+  existing version ("cannot publish over the previously published versions").
+  Re-running a failed run does not help: a `release`-event workflow checks out the
+  tag, so a corrected version needs a new tag/release.
 - `bin` paths must not start with `./` (use `dist/index.js`, not
   `./dist/index.js`); npm rewrites a `./`-prefixed value during publish and warns.
 

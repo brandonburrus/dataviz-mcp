@@ -4,6 +4,13 @@ import { FastMCP } from 'fastmcp'
 import { APP_RESOURCE_URI, createDataVisualizationTool } from './viz/tool.js'
 
 /**
+ * Package version inlined at build time by tsup from package.json (see
+ * tsup.config.ts), so the advertised server version always matches the
+ * published package without a runtime file read or a hand-synced literal.
+ */
+declare const __PKG_VERSION__: `${number}.${number}.${number}`
+
+/**
  * Resolved relative to this module: src/server.ts (dev/tests) and the bundled
  * dist/index.js are both exactly one level below the package root, so the same
  * relative URL finds the Vite-built app in every execution mode.
@@ -20,7 +27,7 @@ const APP_HTML_URL = new URL('../dist/app/index.html', import.meta.url)
 export function createServer(): FastMCP {
   const server = new FastMCP({
     name: 'dataviz-mcp',
-    version: '0.3.0',
+    version: __PKG_VERSION__,
   })
 
   server.addTool(createDataVisualizationTool)
