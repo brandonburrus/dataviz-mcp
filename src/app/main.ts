@@ -5,7 +5,7 @@ import { renderVisualization } from './render.js'
 const RESIZE_DEBOUNCE_MS = 100
 
 const root = document.getElementById('root') as HTMLElement
-const app = new App({ name: 'dataviz-mcp', version: '0.2.0' })
+const app = new App({ name: 'dataviz-mcp', version: '0.3.0' })
 
 let currentSpec: VizSpec | undefined
 

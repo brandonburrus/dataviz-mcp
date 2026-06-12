@@ -1,6 +1,6 @@
 {
   "name": "dataviz-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A Model Context Protocol server for data visualization",
   "keywords": [
     "mcp",
@@ -29,7 +29,7 @@
     "node": ">=20.0.0"
   },
   "bin": {
-    "dataviz-mcp": "./dist/index.js"
+    "dataviz-mcp": "dist/index.js"
   },
   "files": [
     "dist"
