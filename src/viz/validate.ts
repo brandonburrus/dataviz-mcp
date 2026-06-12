@@ -6,7 +6,24 @@ import {
   type EncodingChannel,
   SEQUENTIAL_SCHEMES,
   type VizSpec,
+  type VizType,
 } from './spec.js'
+
+/**
+ * Types whose magnitude channel must be non-negative: negatives make pie slices
+ * meaningless and make stacked/sized marks diverge or invert. Maps each type to
+ * its magnitude channel and the user-facing noun for the error.
+ */
+const NON_NEGATIVE_CHANNELS: Partial<Record<VizType, { channel: EncodingChannel; noun: string }>> =
+  {
+    pie: { channel: 'value', noun: 'Pie slice values' },
+    'stacked-bar': { channel: 'y', noun: 'Stacked bar values' },
+    'stacked-area': { channel: 'y', noun: 'Stacked area values' },
+    bubble: { channel: 'size', noun: 'Bubble sizes' },
+  }
+
+/** Types whose x axis is continuous: every x value must be all-numeric or all-ISO-date. */
+const CONTINUOUS_X_TYPES: VizType[] = ['line', 'area', 'stacked-area', 'scatter', 'bubble']
 
 /**
  * Cross-field semantic validation beyond what the zod schema can express.
@@ -75,21 +92,20 @@ export function validateSpec(spec: VizSpec): void {
     }
   }
 
-  if (spec.type === 'pie' || spec.type === 'stacked-bar') {
-    // Negative values make pie slices meaningless and make stacked segments
-    // diverge across the baseline; require non-negative for both.
-    const channel = spec.type === 'pie' ? 'value' : 'y'
-    const field = spec.encodings[channel] as string
-    const noun = spec.type === 'pie' ? 'Pie slice values' : 'Stacked bar values'
+  const nonNegative = NON_NEGATIVE_CHANNELS[spec.type]
+  if (nonNegative !== undefined) {
+    const field = spec.encodings[nonNegative.channel] as string
     for (const [index, record] of records.entries()) {
       const value = record[field] as number
       if (value < 0) {
-        throw new UserError(`${noun} ('${field}') must be non-negative; row ${index} has ${value}`)
+        throw new UserError(
+          `${nonNegative.noun} ('${field}') must be non-negative; row ${index} has ${value}`,
+        )
       }
     }
   }
 
-  if (spec.type === 'line' || spec.type === 'scatter') {
+  if (CONTINUOUS_X_TYPES.includes(spec.type)) {
     const field = spec.encodings.x as string
     const values = records.map(record => record[field])
     const allNumbers = values.every(value => typeof value === 'number' && !Number.isNaN(value))

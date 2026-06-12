@@ -21,11 +21,17 @@ it receives via the ext-apps `toolresult` event.
 - `renderers/`: one file per viz type. The contract is a pure function
   `(container, spec, dims?) => void`; dimensions are injectable so tests pass
   explicit sizes. Interactivity: tooltips everywhere; legend series toggling on
-  bar/stacked-bar/line/scatter/pie; zoom/pan on line (x) and scatter (x+y) with
-  clip paths; gradient legend on heatmap. stacked-bar pivots records to one row
-  per category (summing repeated series) and uses `d3.stack`, rescaling y to the
-  tallest visible stack on toggle; its y-axis redraw is untransitioned because a
-  transitioned axis tweens tick transforms, which happy-dom cannot interpolate.
+  bar/stacked-bar/line/area/stacked-area/scatter/bubble/pie; zoom/pan on
+  line+area (x) and scatter+bubble (x+y) with clip paths; gradient legend on
+  heatmap. Renderer families share machinery: area is line with `d3.area` filled
+  to a zero baseline (the y domain is forced to include 0); stacked-area pivots
+  to one row per distinct x and stacks with `d3.stack` over a continuous x scale;
+  bubble is scatter with a `d3.scaleSqrt` radius (area-proportional) from the
+  size channel; histogram bins one numeric field with `d3.bin` and derives the
+  count (no series, no legend). stacked-bar/stacked-area pivot records (summing
+  repeated series) and rescale y to the tallest visible stack on toggle; their
+  y-axis redraw is untransitioned because a transitioned axis tweens tick
+  transforms, which happy-dom cannot interpolate.
 - `shared/`: chart frame (margin convention + title/labels), tooltip div,
   HTML legend with hidden-set toggling, color scale factories, x-scale builder
   (time vs linear), d3.zoom wiring.

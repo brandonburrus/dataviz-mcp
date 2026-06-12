@@ -34,6 +34,30 @@ describe('vizSpecSchema', () => {
         encodings: { x: 'height', y: 'weight' },
       },
       {
+        type: 'area',
+        columns: ['day', 'temp'],
+        rows: [[1, 20]],
+        encodings: { x: 'day', y: 'temp' },
+      },
+      {
+        type: 'stacked-area',
+        columns: ['day', 'temp', 'city'],
+        rows: [[1, 20, 'Oslo']],
+        encodings: { x: 'day', y: 'temp', series: 'city' },
+      },
+      {
+        type: 'histogram',
+        columns: ['measure'],
+        rows: [[1]],
+        encodings: { x: 'measure' },
+      },
+      {
+        type: 'bubble',
+        columns: ['gdp', 'life', 'pop'],
+        rows: [[1, 2, 3]],
+        encodings: { x: 'gdp', y: 'life', size: 'pop' },
+      },
+      {
         type: 'pie',
         columns: ['browser', 'share'],
         rows: [['Firefox', 10]],
@@ -60,6 +84,17 @@ describe('vizSpecSchema', () => {
       colorScheme: 'dark2',
     })
     expect(result.success).toBe(true)
+  })
+
+  it('retains the size channel used by bubble charts', () => {
+    const result = vizSpecSchema.safeParse({
+      type: 'bubble',
+      columns: ['gdp', 'life', 'pop'],
+      rows: [[1, 2, 3]],
+      encodings: { x: 'gdp', y: 'life', size: 'pop' },
+    })
+    expect(result.success).toBe(true)
+    expect(result.data?.encodings.size).toBe('pop')
   })
 
   it('rejects an unknown visualization type', () => {

@@ -10,8 +10,8 @@ app, so most of it must stay environment-neutral.
 ## How it works
 
 - `spec.ts`: `vizSpecSchema` (zod) defines the input in columnar form: `type`
-  (bar | stacked-bar | line | scatter | pie | heatmap), `columns` (field names,
-  declared once),
+  (bar | stacked-bar | histogram | line | area | stacked-area | scatter | bubble
+  | pie | heatmap), `columns` (field names, declared once),
   `rows` (1 to 10k positional value arrays, one value per column), `encodings`
   (column-name-to-channel map), optional title/labels/colorScheme. Also exports
   `CHANNEL_RULES`, the per-type required/optional/numeric channel table that
@@ -38,13 +38,18 @@ app, so most of it must stay environment-neutral.
 
 ## Gotchas
 
-- Channel semantics differ by type: bar/stacked-bar x is categorical; line/scatter
-  x must be all-numeric or all-ISO-date (mixed is rejected); heatmap x/y are
-  categorical with numeric value; pie uses category+value, not x/y.
-- stacked-bar requires series (it names the segments stacked in each bar); for
-  bar/line/scatter series is optional. stacked-bar values must be non-negative
-  (like pie) so segments do not diverge across the baseline.
+- Channel semantics differ by type: bar/stacked-bar x is categorical;
+  line/area/stacked-area/scatter/bubble x must be all-numeric or all-ISO-date
+  (the `CONTINUOUS_X_TYPES` check; mixed is rejected); histogram x is strictly
+  numeric (it is a `numeric` channel in CHANNEL_RULES and is binned, deriving its
+  own y/count); heatmap x/y are categorical with numeric value; pie uses
+  category+value, not x/y.
+- stacked-bar and stacked-area require series (it names the stacked segments);
+  bubble requires size (numeric radius); for bar/line/area/scatter/bubble series
+  is optional. Non-negativity is enforced per type via the `NON_NEGATIVE_CHANNELS`
+  map: pie value, stacked-bar y, stacked-area y, and bubble size must be >= 0 so
+  marks do not diverge, invert, or take an imaginary radius.
 - Sequential schemes (viridis, plasma) are heatmap-only; categorical schemes
-  (tableau10, category10, dark2) are for the other five types.
+  (tableau10, category10, dark2) are for every other type.
 - The tool is exported as a plain object (not registered inline) because FastMCP
   has no public tools getter; tests call `execute` directly with a stub context.

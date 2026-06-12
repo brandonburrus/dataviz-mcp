@@ -39,6 +39,36 @@ describe('validateSpec', () => {
         encodings: { x: 'height', y: 'weight' },
       },
       {
+        type: 'area',
+        columns: ['day', 'temp'],
+        rows: [
+          ['2024-01-01', 5],
+          ['2024-01-02', 7],
+        ],
+        encodings: { x: 'day', y: 'temp' },
+      },
+      {
+        type: 'stacked-area',
+        columns: ['day', 'temp', 'city'],
+        rows: [
+          ['2024-01-01', 5, 'Oslo'],
+          ['2024-01-01', 3, 'Rome'],
+        ],
+        encodings: { x: 'day', y: 'temp', series: 'city' },
+      },
+      {
+        type: 'histogram',
+        columns: ['measure'],
+        rows: [[1], [2], [3]],
+        encodings: { x: 'measure' },
+      },
+      {
+        type: 'bubble',
+        columns: ['gdp', 'life', 'pop'],
+        rows: [[1, 2, 3]],
+        encodings: { x: 'gdp', y: 'life', size: 'pop' },
+      },
+      {
         type: 'pie',
         columns: ['browser', 'share'],
         rows: [['Firefox', 10]],
@@ -60,6 +90,10 @@ describe('validateSpec', () => {
   it.each([
     ['bar', { series: 'region' }, 'x, y'],
     ['stacked-bar', { x: 'month', y: 'sales' }, 'x, y, series'],
+    ['area', { x: 'month' }, 'x, y'],
+    ['stacked-area', { x: 'month', y: 'sales' }, 'x, y, series'],
+    ['bubble', { x: 'month', y: 'sales' }, 'x, y, size'],
+    ['histogram', {}, 'x'],
     ['line', { x: 'month' }, 'x, y'],
     ['scatter', { y: 'sales' }, 'x, y'],
     ['pie', { category: 'month' }, 'category, value'],
@@ -158,6 +192,54 @@ describe('validateSpec', () => {
     })
     expect(() => validateSpec(spec)).toThrow('Stacked bar values')
     expect(() => validateSpec(spec)).toThrow('row 1 has -5')
+  })
+
+  it('rejects negative stacked area values', () => {
+    const spec: VizSpec = {
+      type: 'stacked-area',
+      columns: ['day', 'temp', 'city'],
+      rows: [
+        ['2024-01-01', 5, 'Oslo'],
+        ['2024-01-02', -2, 'Oslo'],
+      ],
+      encodings: { x: 'day', y: 'temp', series: 'city' },
+    }
+    expect(() => validateSpec(spec)).toThrow('Stacked area values')
+    expect(() => validateSpec(spec)).toThrow('row 1 has -2')
+  })
+
+  it('rejects negative bubble sizes', () => {
+    const spec: VizSpec = {
+      type: 'bubble',
+      columns: ['gdp', 'life', 'pop'],
+      rows: [
+        [1, 2, 3],
+        [4, 5, -1],
+      ],
+      encodings: { x: 'gdp', y: 'life', size: 'pop' },
+    }
+    expect(() => validateSpec(spec)).toThrow('Bubble sizes')
+    expect(() => validateSpec(spec)).toThrow('row 1 has -1')
+  })
+
+  it('rejects categorical x values for area charts', () => {
+    const spec: VizSpec = {
+      type: 'area',
+      columns: ['name', 'val'],
+      rows: [['alpha', 1]],
+      encodings: { x: 'name', y: 'val' },
+    }
+    expect(() => validateSpec(spec)).toThrow('bar chart instead')
+  })
+
+  it('rejects non-numeric x values for histograms', () => {
+    const spec: VizSpec = {
+      type: 'histogram',
+      columns: ['label'],
+      rows: [['a'], ['b']],
+      encodings: { x: 'label' },
+    }
+    expect(() => validateSpec(spec)).toThrow('must be numeric in every row')
   })
 
   it('rejects sequential schemes for categorical types', () => {
