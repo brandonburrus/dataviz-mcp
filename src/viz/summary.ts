@@ -7,6 +7,6 @@ export function summarizeSpec(spec: VizSpec): string {
     .map(([channel, field]) => `${channel}: ${field}`)
     .join(', ')
   const title = spec.title === undefined ? '' : ` "${spec.title}"`
-  const records = spec.data.length === 1 ? '1 record' : `${spec.data.length} records`
+  const records = spec.rows.length === 1 ? '1 row' : `${spec.rows.length} rows`
   return `Created ${spec.type} visualization${title}: ${records}; ${mappings}`
 }

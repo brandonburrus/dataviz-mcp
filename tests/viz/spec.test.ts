@@ -3,9 +3,10 @@ import { vizSpecSchema } from '../../src/viz/spec.js'
 
 const validBarSpec = {
   type: 'bar',
-  data: [
-    { month: 'Jan', sales: 100 },
-    { month: 'Feb', sales: 120 },
+  columns: ['month', 'sales'],
+  rows: [
+    ['Jan', 100],
+    ['Feb', 120],
   ],
   encodings: { x: 'month', y: 'sales' },
 }
@@ -16,22 +17,26 @@ describe('vizSpecSchema', () => {
       validBarSpec,
       {
         type: 'line',
-        data: [{ day: 1, temp: 20 }],
+        columns: ['day', 'temp'],
+        rows: [[1, 20]],
         encodings: { x: 'day', y: 'temp' },
       },
       {
         type: 'scatter',
-        data: [{ height: 170, weight: 70 }],
+        columns: ['height', 'weight'],
+        rows: [[170, 70]],
         encodings: { x: 'height', y: 'weight' },
       },
       {
         type: 'pie',
-        data: [{ browser: 'Firefox', share: 10 }],
+        columns: ['browser', 'share'],
+        rows: [['Firefox', 10]],
         encodings: { category: 'browser', value: 'share' },
       },
       {
         type: 'heatmap',
-        data: [{ day: 'Mon', hour: '9am', visits: 42 }],
+        columns: ['day', 'hour', 'visits'],
+        rows: [['Mon', '9am', 42]],
         encodings: { x: 'day', y: 'hour', value: 'visits' },
       },
     ]
@@ -55,19 +60,23 @@ describe('vizSpecSchema', () => {
     expect(vizSpecSchema.safeParse({ ...validBarSpec, type: 'treemap' }).success).toBe(false)
   })
 
-  it('rejects empty data', () => {
-    expect(vizSpecSchema.safeParse({ ...validBarSpec, data: [] }).success).toBe(false)
+  it('rejects empty rows', () => {
+    expect(vizSpecSchema.safeParse({ ...validBarSpec, rows: [] }).success).toBe(false)
   })
 
-  it('rejects more than 10000 records', () => {
-    const data = Array.from({ length: 10_001 }, (_, i) => ({ month: `m${i}`, sales: i }))
-    expect(vizSpecSchema.safeParse({ ...validBarSpec, data }).success).toBe(false)
+  it('rejects empty columns', () => {
+    expect(vizSpecSchema.safeParse({ ...validBarSpec, columns: [] }).success).toBe(false)
   })
 
-  it('rejects nested objects in records', () => {
+  it('rejects more than 10000 rows', () => {
+    const rows = Array.from({ length: 10_001 }, (_, i) => [`m${i}`, i])
+    expect(vizSpecSchema.safeParse({ ...validBarSpec, rows }).success).toBe(false)
+  })
+
+  it('rejects nested objects in row values', () => {
     const result = vizSpecSchema.safeParse({
       ...validBarSpec,
-      data: [{ month: 'Jan', sales: { amount: 100 } }],
+      rows: [['Jan', { amount: 100 }]],
     })
     expect(result.success).toBe(false)
   })

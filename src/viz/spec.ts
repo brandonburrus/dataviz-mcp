@@ -25,12 +25,18 @@ export const colorSchemeSchema = z.enum(['tableau10', 'category10', 'dark2', 'vi
 
 export const vizSpecSchema = z.object({
   type: vizTypeSchema.describe('The kind of visualization to create'),
-  data: z
-    .array(z.record(z.string(), dataValueSchema))
+  columns: z
+    .array(z.string())
+    .min(1)
+    .describe('Field names, declared once, in the same order as each row of values'),
+  rows: z
+    .array(z.array(dataValueSchema))
     .min(1)
     .max(10_000)
-    .describe('Tabular data as an array of flat records sharing the encoded field names'),
-  encodings: encodingsSchema.describe('Maps data field names to visual channels for the type'),
+    .describe(
+      'Tabular data as positional value arrays; each row holds one value per column, in column order',
+    ),
+  encodings: encodingsSchema.describe('Maps column names to visual channels for the type'),
   title: z.string().optional().describe('Chart title'),
   xLabel: z.string().optional().describe('X axis label'),
   yLabel: z.string().optional().describe('Y axis label'),

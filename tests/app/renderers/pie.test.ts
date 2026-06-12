@@ -7,10 +7,11 @@ const DIMS = { width: 800, height: 500 }
 
 const spec: VizSpec = {
   type: 'pie',
-  data: [
-    { browser: 'Firefox', share: 30 },
-    { browser: 'Chrome', share: 60 },
-    { browser: 'Safari', share: 10 },
+  columns: ['browser', 'share'],
+  rows: [
+    ['Firefox', 30],
+    ['Chrome', 60],
+    ['Safari', 10],
   ],
   encodings: { category: 'browser', value: 'share' },
 }
@@ -30,10 +31,10 @@ describe('renderPieChart', () => {
       container,
       {
         ...spec,
-        data: [
-          { browser: 'Firefox', share: 20 },
-          { browser: 'Firefox', share: 10 },
-          { browser: 'Chrome', share: 70 },
+        rows: [
+          ['Firefox', 20],
+          ['Firefox', 10],
+          ['Chrome', 70],
         ],
       },
       DIMS,

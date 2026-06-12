@@ -9,20 +9,25 @@ app, so most of it must stay environment-neutral.
 
 ## How it works
 
-- `spec.ts`: `vizSpecSchema` (zod) defines the input: `type` (bar | line |
-  scatter | pie | heatmap), `data` (1 to 10k flat records), `encodings`
-  (field-name-to-channel map), optional title/labels/colorScheme. Also exports
+- `spec.ts`: `vizSpecSchema` (zod) defines the input in columnar form: `type`
+  (bar | line | scatter | pie | heatmap), `columns` (field names, declared once),
+  `rows` (1 to 10k positional value arrays, one value per column), `encodings`
+  (column-name-to-channel map), optional title/labels/colorScheme. Also exports
   `CHANNEL_RULES`, the per-type required/optional/numeric channel table that
   validation and docs share.
-- `data.ts`: environment-neutral runtime helpers (`isIsoDateString`,
-  `distinctValues`, `parseXValues`). **Only `import type` from spec.ts is
+- `data.ts`: environment-neutral runtime helpers. `toRecords(spec)` zips
+  `columns` with each `row` into keyed records, the shape both validation and the
+  renderers actually work with; `isIsoDateString`, `distinctValues`,
+  `parseXValues` operate on those records. **Only `import type` from spec.ts is
   allowed here**; a value import would pull zod into the browser bundle.
 - `validate.ts`: `validateSpec` enforces what zod cannot: required channels per
-  type, channels the type does not use, fields existing in the data, numeric
-  channels numeric in every record (with row index in the error), line/scatter x
-  all-numeric or all-ISO-date, non-negative pie values, scheme-type
-  compatibility. Throws fastmcp `UserError` with corrective messages naming the
-  offending channel/row and the available fields, so the calling LLM can fix its
+  type, channels the type does not use, unique column names, every row length
+  matching the columns, encodings referencing real columns, numeric channels
+  numeric in every row (with row index in the error), line/scatter x all-numeric
+  or all-ISO-date, non-negative pie values, scheme-type compatibility. It runs
+  the structural checks on `columns`/`rows` directly, then `toRecords` for the
+  value checks. Throws fastmcp `UserError` with corrective messages naming the
+  offending channel/row and listing the columns, so the calling LLM can fix its
   input. Server-only (imports fastmcp).
 - `summary.ts`: `summarizeSpec` produces the text content block the model reads.
 - `tool.ts`: the `Tool` object with `_meta.ui.resourceUri` (`APP_RESOURCE_URI`)

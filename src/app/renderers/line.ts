@@ -8,7 +8,7 @@ import {
   type ScaleLinear,
   scaleLinear,
 } from 'd3'
-import { distinctValues, parseXValues } from '../../viz/data.js'
+import { distinctValues, parseXValues, toRecords } from '../../viz/data.js'
 import type { VizSpec } from '../../viz/spec.js'
 import { createChartFrame } from '../shared/chart.js'
 import { categoricalColorScale } from '../shared/colors.js'
@@ -34,11 +34,12 @@ function buildSeries(spec: VizSpec): Series[] {
   const xField = spec.encodings.x as string
   const yField = spec.encodings.y as string
   const seriesField = spec.encodings.series
-  const { values } = parseXValues(spec.data, xField)
+  const data = toRecords(spec)
+  const { values } = parseXValues(data, xField)
 
-  const keys = seriesField === undefined ? [''] : distinctValues(spec.data, seriesField)
+  const keys = seriesField === undefined ? [''] : distinctValues(data, seriesField)
   return keys.map(key => {
-    const points = spec.data
+    const points = data
       .map((record, index) => ({ record, x: values[index] as number | Date }))
       .filter(({ record }) => seriesField === undefined || String(record[seriesField]) === key)
       .map(({ record, x }) => ({ x, y: record[yField] as number }))
@@ -52,7 +53,7 @@ export function renderLineChart(
   spec: VizSpec,
   dims: Dimensions = measure(container),
 ): void {
-  const { isTime } = parseXValues(spec.data, spec.encodings.x as string)
+  const { isTime } = parseXValues(toRecords(spec), spec.encodings.x as string)
   const allSeries = buildSeries(spec)
   const seriesKeys = allSeries.map(series => series.key)
   const color = categoricalColorScale(seriesKeys, spec.colorScheme)

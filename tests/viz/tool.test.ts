@@ -5,9 +5,10 @@ import { APP_RESOURCE_URI, createDataVisualizationTool } from '../../src/viz/too
 
 const validSpec: VizSpec = {
   type: 'bar',
-  data: [
-    { month: 'Jan', sales: 100 },
-    { month: 'Feb', sales: 120 },
+  columns: ['month', 'sales'],
+  rows: [
+    ['Jan', 100],
+    ['Feb', 120],
   ],
   encodings: { x: 'month', y: 'sales' },
 }
@@ -31,7 +32,7 @@ describe('createDataVisualizationTool', () => {
       content: [
         {
           type: 'text',
-          text: 'Created bar visualization: 2 records; x: month, y: sales',
+          text: 'Created bar visualization: 2 rows; x: month, y: sales',
         },
       ],
       structuredContent: validSpec,

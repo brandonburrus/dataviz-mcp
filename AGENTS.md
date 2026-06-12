@@ -71,9 +71,11 @@ The server selects its transport from environment variables:
 
 ## Key Decisions
 
-- 2026-06-11: Tool input is records + encodings (data: flat objects, encodings
-  map field names to channels). Why: one uniform shape the calling LLM can fill
-  from any tabular source.
+- 2026-06-11: Tool input is columnar (columns + rows) + encodings, not an array
+  of records. Why: declaring field names once instead of per row keeps the LLM
+  payload compact for large tables. `data.ts` `toRecords` normalizes to records
+  at the server-validation and renderer boundaries, so downstream logic stays
+  record-shaped.
 - 2026-06-11: MCP App wiring uses FastMCP's native `_meta`/addResource directly,
   not the ext-apps server helpers. Why: the helpers target the raw SDK McpServer
   and FastMCP v4 supports everything needed.

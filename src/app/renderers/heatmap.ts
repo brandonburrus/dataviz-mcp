@@ -1,5 +1,5 @@
 import { axisBottom, axisLeft, extent, range, scaleBand } from 'd3'
-import { distinctValues } from '../../viz/data.js'
+import { distinctValues, toRecords } from '../../viz/data.js'
 import type { DataRecord, VizSpec } from '../../viz/spec.js'
 import { createChartFrame } from '../shared/chart.js'
 import { sequentialColorScale } from '../shared/colors.js'
@@ -20,9 +20,10 @@ export function renderHeatmap(
   const yField = spec.encodings.y as string
   const valueField = spec.encodings.value as string
 
-  const xCategories = distinctValues(spec.data, xField)
-  const yCategories = distinctValues(spec.data, yField)
-  const [minValue, maxValue] = extent(spec.data, record => record[valueField] as number) as [
+  const data = toRecords(spec)
+  const xCategories = distinctValues(data, xField)
+  const yCategories = distinctValues(data, yField)
+  const [minValue, maxValue] = extent(data, record => record[valueField] as number) as [
     number,
     number,
   ]
@@ -46,7 +47,7 @@ export function renderHeatmap(
     .append('g')
     .attr('class', 'viz-cells')
     .selectAll<SVGRectElement, DataRecord>('rect.viz-cell')
-    .data(spec.data)
+    .data(data)
     .join('rect')
     .attr('class', 'viz-cell')
     .attr('x', record => x(String(record[xField])) ?? 0)

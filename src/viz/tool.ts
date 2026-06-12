@@ -9,9 +9,10 @@ export const createDataVisualizationTool: Tool<FastMCPSessionAuth, typeof vizSpe
   name: 'create_data_visualization',
   description:
     'Create an interactive D3 visualization (bar, line, scatter, pie, or heatmap) from tabular ' +
-    'records. Pass data as an array of flat objects and map field names to channels via ' +
-    'encodings. The result renders as an interactive app with tooltips, legend toggling, and ' +
-    'zoom where applicable.',
+    'data. Provide the data in columnar form: a columns array naming the fields once, and a rows ' +
+    'array where each row holds one value per column in column order. Map column names to visual ' +
+    'channels via encodings. The result renders as an interactive app with tooltips, legend ' +
+    'toggling, and zoom where applicable.',
   parameters: vizSpecSchema,
   annotations: {
     readOnlyHint: true,

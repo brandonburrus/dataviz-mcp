@@ -7,11 +7,12 @@ const DIMS = { width: 800, height: 500 }
 
 const groupedSpec: VizSpec = {
   type: 'bar',
-  data: [
-    { month: 'Jan', sales: 100, region: 'EU' },
-    { month: 'Jan', sales: 80, region: 'US' },
-    { month: 'Feb', sales: 120, region: 'EU' },
-    { month: 'Feb', sales: 90, region: 'US' },
+  columns: ['month', 'sales', 'region'],
+  rows: [
+    ['Jan', 100, 'EU'],
+    ['Jan', 80, 'US'],
+    ['Feb', 120, 'EU'],
+    ['Feb', 90, 'US'],
   ],
   encodings: { x: 'month', y: 'sales', series: 'region' },
   title: 'Sales',

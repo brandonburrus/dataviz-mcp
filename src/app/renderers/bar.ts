@@ -1,5 +1,5 @@
 import { axisBottom, axisLeft, max, min, scaleBand, scaleLinear } from 'd3'
-import { distinctValues } from '../../viz/data.js'
+import { distinctValues, toRecords } from '../../viz/data.js'
 import type { DataRecord, VizSpec } from '../../viz/spec.js'
 import { createChartFrame } from '../shared/chart.js'
 import { categoricalColorScale } from '../shared/colors.js'
@@ -16,8 +16,9 @@ export function renderBarChart(
   const yField = spec.encodings.y as string
   const seriesField = spec.encodings.series
 
-  const categories = distinctValues(spec.data, xField)
-  const seriesKeys = seriesField === undefined ? [] : distinctValues(spec.data, seriesField)
+  const data = toRecords(spec)
+  const categories = distinctValues(data, xField)
+  const seriesKeys = seriesField === undefined ? [] : distinctValues(data, seriesField)
   const color = categoricalColorScale(
     seriesKeys.length > 0 ? seriesKeys : [yField],
     spec.colorScheme,
@@ -33,8 +34,8 @@ export function renderBarChart(
   }
 
   const frame = createChartFrame(container, spec, dims)
-  const yMin = Math.min(0, min(spec.data, record => record[yField] as number) ?? 0)
-  const yMax = Math.max(0, max(spec.data, record => record[yField] as number) ?? 0)
+  const yMin = Math.min(0, min(data, record => record[yField] as number) ?? 0)
+  const yMax = Math.max(0, max(data, record => record[yField] as number) ?? 0)
   const x0 = scaleBand().domain(categories).range([0, frame.width]).padding(0.15)
   const y = scaleLinear().domain([yMin, yMax]).nice().range([frame.height, 0])
 
@@ -51,7 +52,7 @@ export function renderBarChart(
 
   function draw(hidden: ReadonlySet<string>): void {
     const visibleSeries = seriesKeys.filter(key => !hidden.has(key))
-    const records = spec.data.filter(
+    const records = data.filter(
       record => seriesField === undefined || !hidden.has(seriesOf(record)),
     )
     // Inner band over the visible series so remaining bars widen on toggle

@@ -1,4 +1,5 @@
 import { arc, pie, type PieArcDatum, rollup } from 'd3'
+import { toRecords } from '../../viz/data.js'
 import type { VizSpec } from '../../viz/spec.js'
 import { createChartFrame } from '../shared/chart.js'
 import { categoricalColorScale } from '../shared/colors.js'
@@ -21,7 +22,7 @@ export function renderPieChart(
 
   // Sum duplicate categories so each appears as a single slice
   const totals = rollup(
-    spec.data,
+    toRecords(spec),
     records => records.reduce((sum, record) => sum + (record[valueField] as number), 0),
     record => String(record[categoryField]),
   )

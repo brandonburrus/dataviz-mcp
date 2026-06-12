@@ -21,27 +21,30 @@ re-render responsively when the container resizes.
 
 ## Tool input
 
-`create_data_visualization` takes records plus a map of field names to visual
-channels. The data is an array of flat objects sharing the encoded field names:
+`create_data_visualization` takes the data in columnar form (field names declared
+once, then positional value rows) plus a map of field names to visual channels.
+Declaring the columns once keeps the payload compact for large tables:
 
 ```json
 {
   "type": "bar",
-  "data": [
-    { "month": "Jan", "sales": 100, "region": "EU" },
-    { "month": "Jan", "sales": 80, "region": "US" },
-    { "month": "Feb", "sales": 120, "region": "EU" },
-    { "month": "Feb", "sales": 90, "region": "US" }
+  "columns": ["month", "sales", "region"],
+  "rows": [
+    ["Jan", 100, "EU"],
+    ["Jan", 80, "US"],
+    ["Feb", 120, "EU"],
+    ["Feb", 90, "US"]
   ],
   "encodings": { "x": "month", "y": "sales", "series": "region" },
   "title": "Quarterly Sales"
 }
 ```
 
-`colorScheme` accepts `tableau10`, `category10`, or `dark2` for categorical types
-(bar, line, scatter, pie), and `viridis` or `plasma` for heatmaps. The server
-validates the spec before rendering and returns a corrective message if, for
-example, an encoding references a field absent from the data.
+Each row holds one value per column, in column order. `colorScheme` accepts
+`tableau10`, `category10`, or `dark2` for categorical types (bar, line, scatter,
+pie), and `viridis` or `plasma` for heatmaps. The server validates the spec before
+rendering and returns a corrective message if, for example, a row length does not
+match the columns or an encoding references a name absent from the columns.
 
 ## Setup and development
 

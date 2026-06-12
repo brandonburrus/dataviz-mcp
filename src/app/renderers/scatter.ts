@@ -1,5 +1,5 @@
 import { axisBottom, axisLeft, extent, type ScaleLinear, scaleLinear } from 'd3'
-import { distinctValues, parseXValues } from '../../viz/data.js'
+import { distinctValues, parseXValues, toRecords } from '../../viz/data.js'
 import type { DataRecord, VizSpec } from '../../viz/spec.js'
 import { createChartFrame } from '../shared/chart.js'
 import { categoricalColorScale } from '../shared/colors.js'
@@ -26,15 +26,16 @@ export function renderScatterChart(
   const xField = spec.encodings.x as string
   const yField = spec.encodings.y as string
   const seriesField = spec.encodings.series
-  const { values, isTime } = parseXValues(spec.data, xField)
+  const data = toRecords(spec)
+  const { values, isTime } = parseXValues(data, xField)
 
-  const dots: Dot[] = spec.data.map((record, index) => ({
+  const dots: Dot[] = data.map((record, index) => ({
     x: values[index] as number | Date,
     y: record[yField] as number,
     series: seriesField === undefined ? yField : String(record[seriesField]),
     record,
   }))
-  const seriesKeys = seriesField === undefined ? [yField] : distinctValues(spec.data, seriesField)
+  const seriesKeys = seriesField === undefined ? [yField] : distinctValues(data, seriesField)
   const color = categoricalColorScale(seriesKeys, spec.colorScheme)
   const hidden = new Set<string>()
 

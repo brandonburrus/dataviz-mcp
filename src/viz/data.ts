@@ -1,7 +1,23 @@
 // Environment-neutral data helpers shared by server validation and the browser
 // app. Only type imports from spec.js are allowed here: a value import would
 // pull zod into the browser bundle.
-import type { DataRecord } from './spec.js'
+import type { DataRecord, DataValue, VizSpec } from './spec.js'
+
+/**
+ * Joins the column names with each positional row into keyed records, the shape
+ * validation and the renderers work with. Assumes rows are already length-checked
+ * against columns (the server validates before this runs); any short row pads with
+ * null so a renderer never reads undefined.
+ */
+export function toRecords(spec: Pick<VizSpec, 'columns' | 'rows'>): DataRecord[] {
+  return spec.rows.map(row => {
+    const record: DataRecord = {}
+    spec.columns.forEach((column, index) => {
+      record[column] = (row[index] ?? null) as DataValue
+    })
+    return record
+  })
+}
 
 /** Matches ISO-style dates (2024-01, 2024-01-15, 2024-01-15T10:30:00Z) and avoids
  * Date.parse's permissive engine-specific parsing of arbitrary strings. */

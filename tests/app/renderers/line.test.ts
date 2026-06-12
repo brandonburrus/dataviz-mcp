@@ -7,11 +7,12 @@ const DIMS = { width: 800, height: 500 }
 
 const multiSeriesSpec: VizSpec = {
   type: 'line',
-  data: [
-    { day: '2024-01-01', temp: 5, city: 'Oslo' },
-    { day: '2024-01-02', temp: 7, city: 'Oslo' },
-    { day: '2024-01-01', temp: 12, city: 'Rome' },
-    { day: '2024-01-02', temp: 14, city: 'Rome' },
+  columns: ['day', 'temp', 'city'],
+  rows: [
+    ['2024-01-01', 5, 'Oslo'],
+    ['2024-01-02', 7, 'Oslo'],
+    ['2024-01-01', 12, 'Rome'],
+    ['2024-01-02', 14, 'Rome'],
   ],
   encodings: { x: 'day', y: 'temp', series: 'city' },
 }
@@ -34,9 +35,10 @@ describe('renderLineChart', () => {
       container,
       {
         type: 'line',
-        data: [
-          { day: 1, temp: 5 },
-          { day: 2, temp: 7 },
+        columns: ['day', 'temp'],
+        rows: [
+          [1, 5],
+          [2, 7],
         ],
         encodings: { x: 'day', y: 'temp' },
       },

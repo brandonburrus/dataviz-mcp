@@ -7,10 +7,11 @@ const DIMS = { width: 800, height: 500 }
 
 const spec: VizSpec = {
   type: 'scatter',
-  data: [
-    { height: 160, weight: 60, team: 'A' },
-    { height: 170, weight: 70, team: 'A' },
-    { height: 180, weight: 80, team: 'B' },
+  columns: ['height', 'weight', 'team'],
+  rows: [
+    [160, 60, 'A'],
+    [170, 70, 'A'],
+    [180, 80, 'B'],
   ],
   encodings: { x: 'height', y: 'weight', series: 'team' },
 }

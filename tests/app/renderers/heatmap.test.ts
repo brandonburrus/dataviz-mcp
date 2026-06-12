@@ -7,11 +7,12 @@ const DIMS = { width: 800, height: 500 }
 
 const spec: VizSpec = {
   type: 'heatmap',
-  data: [
-    { day: 'Mon', hour: '9am', visits: 10 },
-    { day: 'Mon', hour: '10am', visits: 20 },
-    { day: 'Tue', hour: '9am', visits: 30 },
-    { day: 'Tue', hour: '10am', visits: 40 },
+  columns: ['day', 'hour', 'visits'],
+  rows: [
+    ['Mon', '9am', 10],
+    ['Mon', '10am', 20],
+    ['Tue', '9am', 30],
+    ['Tue', '10am', 40],
   ],
   encodings: { x: 'day', y: 'hour', value: 'visits' },
 }

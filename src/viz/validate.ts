@@ -1,5 +1,5 @@
 import { UserError } from 'fastmcp'
-import { isIsoDateString } from './data.js'
+import { isIsoDateString, toRecords } from './data.js'
 import {
   CATEGORICAL_SCHEMES,
   CHANNEL_RULES,
@@ -7,14 +7,6 @@ import {
   SEQUENTIAL_SCHEMES,
   type VizSpec,
 } from './spec.js'
-
-function availableFields(spec: VizSpec): string[] {
-  const fields = new Set<string>()
-  for (const record of spec.data) {
-    for (const key of Object.keys(record)) fields.add(key)
-  }
-  return [...fields].sort()
-}
 
 /**
  * Cross-field semantic validation beyond what the zod schema can express.
@@ -42,24 +34,41 @@ export function validateSpec(spec: VizSpec): void {
     )
   }
 
-  const fields = availableFields(spec)
-  for (const channel of allowed) {
-    const field = spec.encodings[channel]
-    if (field !== undefined && !fields.includes(field)) {
+  const duplicates = spec.columns.filter((column, index) => spec.columns.indexOf(column) !== index)
+  if (duplicates.length > 0) {
+    throw new UserError(
+      `columns must be unique; duplicated: ${[...new Set(duplicates)].join(', ')}`,
+    )
+  }
+
+  for (const [index, row] of spec.rows.entries()) {
+    if (row.length !== spec.columns.length) {
       throw new UserError(
-        `encodings.${channel} references field '${field}', but data records contain: ${fields.join(', ')}`,
+        `Every row must have one value per column (${spec.columns.length}); ` +
+          `row ${index} has ${row.length}`,
       )
     }
   }
 
+  for (const channel of allowed) {
+    const field = spec.encodings[channel]
+    if (field !== undefined && !spec.columns.includes(field)) {
+      throw new UserError(
+        `encodings.${channel} references field '${field}', but columns are: ${spec.columns.join(', ')}`,
+      )
+    }
+  }
+
+  const records = toRecords(spec)
+
   for (const channel of rules.numeric) {
     // Required channels were checked above, so the field is always set here
     const field = spec.encodings[channel] as string
-    for (const [index, record] of spec.data.entries()) {
+    for (const [index, record] of records.entries()) {
       const value = record[field]
       if (typeof value !== 'number' || Number.isNaN(value)) {
         throw new UserError(
-          `encodings.${channel} ('${field}') must be numeric in every record; ` +
+          `encodings.${channel} ('${field}') must be numeric in every row; ` +
             `row ${index} has ${JSON.stringify(value)}`,
         )
       }
@@ -68,7 +77,7 @@ export function validateSpec(spec: VizSpec): void {
 
   if (spec.type === 'pie') {
     const field = spec.encodings.value as string
-    for (const [index, record] of spec.data.entries()) {
+    for (const [index, record] of records.entries()) {
       const value = record[field] as number
       if (value < 0) {
         throw new UserError(
@@ -80,7 +89,7 @@ export function validateSpec(spec: VizSpec): void {
 
   if (spec.type === 'line' || spec.type === 'scatter') {
     const field = spec.encodings.x as string
-    const values = spec.data.map(record => record[field])
+    const values = records.map(record => record[field])
     const allNumbers = values.every(value => typeof value === 'number' && !Number.isNaN(value))
     const allDates = values.every(isIsoDateString)
     if (!allNumbers && !allDates) {

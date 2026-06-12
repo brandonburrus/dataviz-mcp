@@ -7,9 +7,10 @@ import { validateSpec } from '../../src/viz/validate.js'
 function barSpec(overrides: Partial<VizSpec> = {}): VizSpec {
   return {
     type: 'bar',
-    data: [
-      { month: 'Jan', sales: 100, region: 'EU' },
-      { month: 'Feb', sales: 120, region: 'US' },
+    columns: ['month', 'sales', 'region'],
+    rows: [
+      ['Jan', 100, 'EU'],
+      ['Feb', 120, 'US'],
     ],
     encodings: { x: 'month', y: 'sales' },
     ...overrides,
@@ -23,25 +24,29 @@ describe('validateSpec', () => {
       barSpec({ encodings: { x: 'month', y: 'sales', series: 'region' } }),
       {
         type: 'line',
-        data: [
-          { day: '2024-01-01', temp: 5 },
-          { day: '2024-01-02', temp: 7 },
+        columns: ['day', 'temp'],
+        rows: [
+          ['2024-01-01', 5],
+          ['2024-01-02', 7],
         ],
         encodings: { x: 'day', y: 'temp' },
       },
       {
         type: 'scatter',
-        data: [{ height: 170, weight: 70 }],
+        columns: ['height', 'weight'],
+        rows: [[170, 70]],
         encodings: { x: 'height', y: 'weight' },
       },
       {
         type: 'pie',
-        data: [{ browser: 'Firefox', share: 10 }],
+        columns: ['browser', 'share'],
+        rows: [['Firefox', 10]],
         encodings: { category: 'browser', value: 'share' },
       },
       {
         type: 'heatmap',
-        data: [{ day: 'Mon', hour: '9am', visits: 42 }],
+        columns: ['day', 'hour', 'visits'],
+        rows: [['Mon', '9am', 42]],
         encodings: { x: 'day', y: 'hour', value: 'visits' },
         colorScheme: 'plasma',
       },
@@ -68,19 +73,38 @@ describe('validateSpec', () => {
     expect(() => validateSpec(spec)).toThrow('does not use encodings: category')
   })
 
-  it('lists available fields when an encoding references an unknown field', () => {
+  it('rejects duplicate column names', () => {
+    const spec = barSpec({ columns: ['month', 'sales', 'sales'] })
+    expect(() => validateSpec(spec)).toThrow('columns must be unique; duplicated: sales')
+  })
+
+  it('rejects rows whose length does not match the columns', () => {
+    const spec = barSpec({
+      columns: ['month', 'sales'],
+      rows: [
+        ['Jan', 100],
+        ['Feb', 120, 'extra'],
+      ],
+      encodings: { x: 'month', y: 'sales' },
+    })
+    expect(() => validateSpec(spec)).toThrow('row 1 has 3')
+  })
+
+  it('lists the columns when an encoding references an unknown field', () => {
     const spec = barSpec({ encodings: { x: 'month', y: 'revenue' } })
     expect(() => validateSpec(spec)).toThrow(
-      "encodings.y references field 'revenue', but data records contain: month, region, sales",
+      "encodings.y references field 'revenue', but columns are: month, sales, region",
     )
   })
 
   it('reports the row index for non-numeric values in numeric channels', () => {
     const spec = barSpec({
-      data: [
-        { month: 'Jan', sales: 100 },
-        { month: 'Feb', sales: 'n/a' },
+      columns: ['month', 'sales'],
+      rows: [
+        ['Jan', 100],
+        ['Feb', 'n/a'],
       ],
+      encodings: { x: 'month', y: 'sales' },
     })
     expect(() => validateSpec(spec)).toThrow('row 1 has "n/a"')
   })
@@ -88,9 +112,10 @@ describe('validateSpec', () => {
   it('rejects mixed numeric and date x values for line charts', () => {
     const spec: VizSpec = {
       type: 'line',
-      data: [
-        { day: '2024-01-01', temp: 5 },
-        { day: 17, temp: 7 },
+      columns: ['day', 'temp'],
+      rows: [
+        ['2024-01-01', 5],
+        [17, 7],
       ],
       encodings: { x: 'day', y: 'temp' },
     }
@@ -100,7 +125,8 @@ describe('validateSpec', () => {
   it('rejects categorical x values for scatter charts', () => {
     const spec: VizSpec = {
       type: 'scatter',
-      data: [{ name: 'alpha', score: 1 }],
+      columns: ['name', 'score'],
+      rows: [['alpha', 1]],
       encodings: { x: 'name', y: 'score' },
     }
     expect(() => validateSpec(spec)).toThrow('bar chart instead')
@@ -109,9 +135,10 @@ describe('validateSpec', () => {
   it('rejects negative pie values', () => {
     const spec: VizSpec = {
       type: 'pie',
-      data: [
-        { browser: 'Firefox', share: 10 },
-        { browser: 'Chrome', share: -3 },
+      columns: ['browser', 'share'],
+      rows: [
+        ['Firefox', 10],
+        ['Chrome', -3],
       ],
       encodings: { category: 'browser', value: 'share' },
     }
@@ -126,7 +153,8 @@ describe('validateSpec', () => {
   it('rejects categorical schemes for heatmaps', () => {
     const spec: VizSpec = {
       type: 'heatmap',
-      data: [{ day: 'Mon', hour: '9am', visits: 42 }],
+      columns: ['day', 'hour', 'visits'],
+      rows: [['Mon', '9am', 42]],
       encodings: { x: 'day', y: 'hour', value: 'visits' },
       colorScheme: 'tableau10',
     }
