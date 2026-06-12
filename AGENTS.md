@@ -16,6 +16,22 @@ The server selects its transport from environment variables:
 - `MCP_TRANSPORT=httpStream`: streamable HTTP on `MCP_PORT` (default `8080`),
   endpoint path `/mcp`.
 
+## Releasing
+
+`.github/workflows/publish.yml` runs `npm publish` on a *published* GitHub
+release, authenticating to npm via OIDC trusted publishing (no token; provenance
+is automatic). It upgrades npm to `@latest` first because trusted publishing
+needs npm `>= 11.5.1`, which Node 22's bundled npm predates.
+
+- **Bump the version before cutting the release**, in all three kept-in-sync
+  places (`package.json`, `src/server.ts`, `src/app/main.ts`), past the last
+  published version. The workflow publishes whatever `package.json` says; a tag
+  whose version is already on npm fails with "cannot publish over the previously
+  published versions". Re-running the failed run does not help: a `release`-event
+  workflow checks out the tag, so a new version needs a new tag/release.
+- `bin` paths must not start with `./` (use `dist/index.js`, not
+  `./dist/index.js`); npm rewrites a `./`-prefixed value during publish and warns.
+
 ## Critical constraints
 
 - **fastmcp here is the npm package (punkpeye), not the PyPI `fastmcp` (jlowin).**
