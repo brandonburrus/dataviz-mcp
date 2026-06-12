@@ -59,4 +59,16 @@ describe('renderPieChart', () => {
     const tooltip = container.querySelector<HTMLElement>('.viz-tooltip') as HTMLElement
     expect(tooltip.innerHTML).toContain('Firefox: 30 (30.0%)')
   })
+
+  it('renders a hole for type donut and none for type pie', () => {
+    // viz-donut marks the group whenever innerRadius > 0 (the hole)
+    const donut = document.createElement('div')
+    renderPieChart(donut, { ...spec, type: 'donut' }, DIMS)
+    expect(donut.querySelectorAll('path.viz-slice')).toHaveLength(3)
+    expect(donut.querySelector('.viz-donut')).not.toBeNull()
+
+    const flat = document.createElement('div')
+    renderPieChart(flat, spec, DIMS)
+    expect(flat.querySelector('.viz-donut')).toBeNull()
+  })
 })

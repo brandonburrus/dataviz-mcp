@@ -23,6 +23,8 @@ const RENDERERS: Record<VizType, Renderer> = {
   scatter: renderScatterChart,
   bubble: renderBubbleChart,
   pie: renderPieChart,
+  // donut shares the pie renderer, which draws an inner radius for type 'donut'
+  donut: renderPieChart,
   heatmap: renderHeatmap,
 }
 

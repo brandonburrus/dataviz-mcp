@@ -10,6 +10,7 @@ export const vizTypeSchema = z.enum([
   'scatter',
   'bubble',
   'pie',
+  'donut',
   'heatmap',
 ])
 
@@ -100,6 +101,8 @@ export const CHANNEL_RULES: Record<VizType, ChannelRules> = {
   // x is numeric-or-date (validated separately), so only y and size are strictly numeric
   bubble: { required: ['x', 'y', 'size'], optional: ['series'], numeric: ['y', 'size'] },
   pie: { required: ['category', 'value'], optional: [], numeric: ['value'] },
+  // donut is a pie with an inner radius; identical channel contract
+  donut: { required: ['category', 'value'], optional: [], numeric: ['value'] },
   heatmap: { required: ['x', 'y', 'value'], optional: [], numeric: ['value'] },
 }
 

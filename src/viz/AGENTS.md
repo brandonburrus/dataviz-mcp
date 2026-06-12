@@ -11,7 +11,7 @@ app, so most of it must stay environment-neutral.
 
 - `spec.ts`: `vizSpecSchema` (zod) defines the input in columnar form: `type`
   (bar | stacked-bar | histogram | line | area | stacked-area | scatter | bubble
-  | pie | heatmap), `columns` (field names, declared once),
+  | pie | donut | heatmap), `columns` (field names, declared once),
   `rows` (1 to 10k positional value arrays, one value per column), `encodings`
   (column-name-to-channel map), optional title/labels/colorScheme. Also exports
   `CHANNEL_RULES`, the per-type required/optional/numeric channel table that
@@ -42,13 +42,14 @@ app, so most of it must stay environment-neutral.
   line/area/stacked-area/scatter/bubble x must be all-numeric or all-ISO-date
   (the `CONTINUOUS_X_TYPES` check; mixed is rejected); histogram x is strictly
   numeric (it is a `numeric` channel in CHANNEL_RULES and is binned, deriving its
-  own y/count); heatmap x/y are categorical with numeric value; pie uses
-  category+value, not x/y.
+  own y/count); heatmap x/y are categorical with numeric value; pie and donut use
+  category+value, not x/y (donut is pie with the same contract plus an inner
+  radius, sharing the renderer and channel rules).
 - stacked-bar and stacked-area require series (it names the stacked segments);
   bubble requires size (numeric radius); for bar/line/area/scatter/bubble series
   is optional. Non-negativity is enforced per type via the `NON_NEGATIVE_CHANNELS`
-  map: pie value, stacked-bar y, stacked-area y, and bubble size must be >= 0 so
-  marks do not diverge, invert, or take an imaginary radius.
+  map: pie/donut value, stacked-bar y, stacked-area y, and bubble size must be
+  >= 0 so marks do not diverge, invert, or take an imaginary radius.
 - Sequential schemes (viridis, plasma) are heatmap-only; categorical schemes
   (tableau10, category10, dark2) are for every other type.
 - The tool is exported as a plain object (not registered inline) because FastMCP

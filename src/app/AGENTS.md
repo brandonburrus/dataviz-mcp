@@ -20,8 +20,11 @@ it receives via the ext-apps `toolresult` event.
   `spec.type` via a `Record<VizType, Renderer>` table.
 - `renderers/`: one file per viz type. The contract is a pure function
   `(container, spec, dims?) => void`; dimensions are injectable so tests pass
-  explicit sizes. Interactivity: tooltips everywhere; legend series toggling on
-  bar/stacked-bar/line/area/stacked-area/scatter/bubble/pie; zoom/pan on
+  explicit sizes. One renderer can back several types: `pie` and `donut` both map
+  to `renderPieChart`, which draws an inner radius (and tags the group `viz-donut`)
+  only for `type: 'donut'`. Interactivity: tooltips everywhere; legend series
+  toggling on bar/stacked-bar/line/area/stacked-area/scatter/bubble/pie/donut;
+  zoom/pan on
   line+area (x) and scatter+bubble (x+y) with clip paths; gradient legend on
   heatmap. Renderer families share machinery: area is line with `d3.area` filled
   to a zero baseline (the y domain is forced to include 0); stacked-area pivots

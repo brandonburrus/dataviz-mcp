@@ -39,16 +39,18 @@ export function renderPieChart(
 
   const frame = createChartFrame(container, spec, dims)
   const radius = Math.min(frame.width, frame.height) / 2
+  // donut is a pie with a centered hole; the viz-donut class tracks that hole
+  const innerRadius = spec.type === 'donut' ? radius * 0.55 : 0
   const center = frame.plot
     .append('g')
-    .attr('class', 'viz-pie')
+    .attr('class', innerRadius > 0 ? 'viz-pie viz-donut' : 'viz-pie')
     .attr('transform', `translate(${frame.width / 2},${frame.height / 2})`)
 
   // Stable angles regardless of toggling: sort(null) keeps data order
   const pieGenerator = pie<Slice>()
     .value(slice => slice.value)
     .sort(null)
-  const arcGenerator = arc<PieArcDatum<Slice>>().innerRadius(0).outerRadius(radius)
+  const arcGenerator = arc<PieArcDatum<Slice>>().innerRadius(innerRadius).outerRadius(radius)
 
   function draw(hidden: ReadonlySet<string>): void {
     const visible = slices.filter(slice => !hidden.has(slice.category))

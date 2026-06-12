@@ -75,6 +75,12 @@ describe('validateSpec', () => {
         encodings: { category: 'browser', value: 'share' },
       },
       {
+        type: 'donut',
+        columns: ['browser', 'share'],
+        rows: [['Firefox', 10]],
+        encodings: { category: 'browser', value: 'share' },
+      },
+      {
         type: 'heatmap',
         columns: ['day', 'hour', 'visits'],
         rows: [['Mon', '9am', 42]],
@@ -97,6 +103,7 @@ describe('validateSpec', () => {
     ['line', { x: 'month' }, 'x, y'],
     ['scatter', { y: 'sales' }, 'x, y'],
     ['pie', { category: 'month' }, 'category, value'],
+    ['donut', { category: 'month' }, 'category, value'],
     ['heatmap', { x: 'month', y: 'region' }, 'x, y, value'],
   ] as const)('reports missing required channels for %s', (type, encodings, required) => {
     const spec = barSpec({ type, encodings })
@@ -166,6 +173,20 @@ describe('validateSpec', () => {
       encodings: { x: 'name', y: 'score' },
     }
     expect(() => validateSpec(spec)).toThrow('bar chart instead')
+  })
+
+  it('rejects negative donut values', () => {
+    const spec: VizSpec = {
+      type: 'donut',
+      columns: ['browser', 'share'],
+      rows: [
+        ['Firefox', 10],
+        ['Chrome', -3],
+      ],
+      encodings: { category: 'browser', value: 'share' },
+    }
+    expect(() => validateSpec(spec)).toThrow('Donut slice values')
+    expect(() => validateSpec(spec)).toThrow('row 1 has -3')
   })
 
   it('rejects negative pie values', () => {

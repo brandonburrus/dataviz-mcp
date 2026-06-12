@@ -19,6 +19,7 @@ the host renders inline in the conversation, inside a sandboxed iframe.
 | `scatter` | `x` (number or ISO date), `y` (number) | `series` | tooltips, legend toggle, x/y zoom/pan |
 | `bubble` | `x` (number or ISO date), `y` (number), `size` (number) | `series` | tooltips, legend toggle, x/y zoom/pan |
 | `pie` | `category`, `value` (number) | | tooltips with percentage, legend toggle |
+| `donut` | `category`, `value` (number) | | tooltips with percentage, legend toggle |
 | `heatmap` | `x` (category), `y` (category), `value` (number) | | tooltips, gradient legend |
 
 All types support an optional `title`, `xLabel`, `yLabel`, and `colorScheme`, and
@@ -47,8 +48,8 @@ Declaring the columns once keeps the payload compact for large tables:
 
 Each row holds one value per column, in column order. `colorScheme` accepts
 `tableau10`, `category10`, or `dark2` for categorical types (bar, stacked-bar,
-histogram, line, area, stacked-area, scatter, bubble, pie), and `viridis` or
-`plasma` for heatmaps. The server validates the spec before
+histogram, line, area, stacked-area, scatter, bubble, pie, donut), and `viridis`
+or `plasma` for heatmaps. The server validates the spec before
 rendering and returns a corrective message if, for example, a row length does not
 match the columns or an encoding references a name absent from the columns.
 

@@ -64,6 +64,12 @@ describe('vizSpecSchema', () => {
         encodings: { category: 'browser', value: 'share' },
       },
       {
+        type: 'donut',
+        columns: ['browser', 'share'],
+        rows: [['Firefox', 10]],
+        encodings: { category: 'browser', value: 'share' },
+      },
+      {
         type: 'heatmap',
         columns: ['day', 'hour', 'visits'],
         rows: [['Mon', '9am', 42]],

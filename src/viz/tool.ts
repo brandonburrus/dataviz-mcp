@@ -9,7 +9,7 @@ export const createDataVisualizationTool: Tool<FastMCPSessionAuth, typeof vizSpe
   name: 'create_data_visualization',
   description:
     'Create an interactive D3 visualization (bar, stacked bar, histogram, line, area, stacked ' +
-    'area, scatter, bubble, pie, or heatmap) from tabular data. Provide the data in columnar ' +
+    'area, scatter, bubble, pie, donut, or heatmap) from tabular data. Provide the data in columnar ' +
     'form: a columns array naming the fields once, and a rows array where each row holds one ' +
     'value per column in column order. Map column names to visual channels via encodings ' +
     '(stacked bar and stacked area require a series channel; bubble requires a size channel; ' +

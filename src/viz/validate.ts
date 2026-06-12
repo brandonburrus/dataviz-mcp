@@ -17,6 +17,7 @@ import {
 const NON_NEGATIVE_CHANNELS: Partial<Record<VizType, { channel: EncodingChannel; noun: string }>> =
   {
     pie: { channel: 'value', noun: 'Pie slice values' },
+    donut: { channel: 'value', noun: 'Donut slice values' },
     'stacked-bar': { channel: 'y', noun: 'Stacked bar values' },
     'stacked-area': { channel: 'y', noun: 'Stacked area values' },
     bubble: { channel: 'size', noun: 'Bubble sizes' },
