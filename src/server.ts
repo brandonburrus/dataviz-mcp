@@ -20,7 +20,7 @@ const APP_HTML_URL = new URL('../dist/app/index.html', import.meta.url)
 export function createServer(): FastMCP {
   const server = new FastMCP({
     name: 'dataviz-mcp',
-    version: '0.1.0',
+    version: '0.2.0',
   })
 
   server.addTool(createDataVisualizationTool)
