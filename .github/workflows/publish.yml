@@ -1,0 +1,29 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # Mints the OIDC token npm exchanges for short-lived publish credentials
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      # Node 22 bundles npm < 11.5.1; trusted publishing needs >= 11.5.1.
+      - run: npm install -g npm@latest
+      - run: pnpm install --frozen-lockfile
+      # No NODE_AUTH_TOKEN and no --provenance: with a configured trusted publisher
+      # npm performs the OIDC exchange and attaches provenance automatically. The
+      # package's prepublishOnly (typecheck + test) and prepack (build) hooks gate
+      # this publish.
+      - run: npm publish
